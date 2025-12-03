@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>KLF Result Verify - HAUWAU_UMAR_FARUK</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+body{font-family:Arial;background:#eef2f7;padding:20px}
+.box{background:white;padding:25px;border-radius:8px;max-width:600px;margin:auto;
+      box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+input{width:100%;padding:12px;font-size:18px;margin-top:8px;border-radius:6px;
+       border:1px solid #bbb}
+button{padding:12px 20px;border:0;border-radius:6px;font-size:17px;cursor:pointer}
+#verifyBtn{background:#0b63c4;color:white;width:100%}
+#viewBtn{background:#28a745;color:white;margin-top:15px;display:none;width:100%}
+.msg{margin-top:15px;font-size:16px}
+.ok{color:green}
+.err{color:#c00}
+.info{background:#f8f9fa;padding:15px;border-radius:6px;margin-bottom:20px;border-left:4px solid #0b63c4}
+</style>
+</head>
+
+<body>
+<div class="box">
+  <h2 style="color:#10306b;text-align:center;">KLF RESULT VERIFICATION</h2>
+  
+  <div class="info">
+    <p><b>Student:</b> HAUWAU_UMAR_FARUK</p>
+    <p>Enter your <b>KLF-ID</b> printed on your card to verify and view your result.</p>
+  </div>
+
+  <label>KLF-ID <small>(Format: KLF-XXXXX)</small></label>
+  <input id="klf_input" type="text" placeholder="KLF-XXXXX">
+
+  <button id="verifyBtn">VERIFY NOW</button>
+  <div id="msg" class="msg"></div>
+  <button id="viewBtn" onclick="window.open('https://drive.google.com/uc?export=view&amp;id=1upICnOwldIjuLNwnIM2JTZ7sFeTdRosD','_blank')">VIEW RESULT</button>
+</div>
+
+<script>
+// Student's real ID (embedded)
+const REAL_ID = "KLF-38089";
+
+// Read ID from QR URL
+const params = new URLSearchParams(window.location.search);
+const passedID = params.get("klf_id");
+
+// Autofill ID if embedded
+if (passedID) {
+    document.getElementById("klf_input").value = passedID;
+}
+
+// Auto-verify if ID is already in URL
+if (passedID && passedID.toUpperCase() === REAL_ID.toUpperCase()) {
+    document.getElementById("verifyBtn").click();
+}
+
+document.getElementById("verifyBtn").onclick = () => {
+    const val = document.getElementById("klf_input").value.trim().toUpperCase();
+    const msg = document.getElementById("msg");
+    const viewBtn = document.getElementById("viewBtn");
+
+    if (!val) {
+        msg.innerHTML = "Please enter KLF-ID.";
+        msg.className = "msg err";
+        viewBtn.style.display = "none";
+        return;
+    }
+
+    // Validate format
+    if (!val.startsWith("KLF-")) {
+        msg.innerHTML = "❌ ID must start with 'KLF-' followed by numbers.";
+        msg.className = "msg err";
+        viewBtn.style.display = "none";
+        return;
+    }
+
+    if (val === REAL_ID.toUpperCase()) {
+        msg.innerHTML = "✅ ID Verified Successfully. You may now view your result.";
+        msg.className = "msg ok";
+        viewBtn.style.display = "block";
+    } else {
+        msg.innerHTML = "❌ Invalid ID. Please check the KLF-ID printed on your card.";
+        msg.className = "msg err";
+        viewBtn.style.display = "none";
+    }
+};
+
+// Allow pressing Enter to verify
+document.getElementById("klf_input").addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+        document.getElementById("verifyBtn").click();
+    }
+});
+</script>
+
+</body>
+</html>
