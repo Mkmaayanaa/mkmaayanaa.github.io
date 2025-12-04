@@ -5,52 +5,153 @@
 <title>KLF Result Verification Portal</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
-body { font-family: Arial, sans-serif; background: #eef2f7; padding: 20px; text-align: center; }
-.container { max-width: 800px; margin: 40px auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
-h1 { color: #10306b; margin-bottom: 30px; }
-p { color: #555; line-height: 1.6; margin-bottom: 20px; font-size: 18px; }
-.info-box { background: #f0f8ff; padding: 20px; border-radius: 8px; margin: 30px 0; border-left: 5px solid #0b63c4; }
-.steps { text-align: left; margin: 30px 0; padding-left: 20px; }
-.steps li { margin: 12px 0; font-size: 17px; }
-.error { background: #fff0f0; color: #c00; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 5px solid #c00; }
-.warning { background: #fff8e1; color: #856404; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 5px solid #ffc107; }
-.success { background: #d4edda; color: #155724; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 5px solid #28a745; }
+body { 
+    font-family: 'Arial', sans-serif; 
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    margin: 0;
+}
+.container { 
+    max-width: 900px; 
+    margin: 0 auto; 
+    background: white; 
+    padding: 50px; 
+    border-radius: 20px; 
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    text-align: center;
+}
+h1 { 
+    color: #10306b; 
+    margin-bottom: 10px;
+    font-size: 36px;
+}
+h2 {
+    color: #0b63c4;
+    margin-top: 40px;
+}
+p { 
+    color: #555; 
+    line-height: 1.6; 
+    margin-bottom: 20px; 
+    font-size: 18px; 
+}
+.info-box { 
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 30px; 
+    border-radius: 15px; 
+    margin: 30px 0; 
+    border-left: 5px solid #0b63c4;
+    text-align: left;
+}
+.steps { 
+    text-align: left; 
+    margin: 30px 0; 
+    padding-left: 20px; 
+}
+.steps li { 
+    margin: 15px 0; 
+    font-size: 17px; 
+    padding-left: 10px;
+}
+.note { 
+    background: #fff3cd; 
+    color: #856404; 
+    padding: 20px; 
+    border-radius: 10px; 
+    margin: 30px 0; 
+    border-left: 5px solid #ffc107; 
+}
+.success { 
+    background: #d4edda; 
+    color: #155724; 
+    padding: 20px; 
+    border-radius: 10px; 
+    margin: 30px 0; 
+    border-left: 5px solid #28a745; 
+}
+.card-sample {
+    background: white;
+    border: 2px solid #10306b;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 30px auto;
+    max-width: 500px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+.card-sample img {
+    max-width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+.contact {
+    background: #f0f8ff;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 40px;
+}
 </style>
 </head>
 <body>
 <div class="container">
-  <h1>🎓 KLF Result Verification Portal</h1>
-  
-  <div class="info-box">
-    <h2>Welcome Students!</h2>
-    <p>This portal allows you to securely verify and access your examination results.</p>
-  </div>
-  
-  <div class="warning">
-    <p><strong>⚠️ Important:</strong> You cannot access verification pages directly from this main page.</p>
-    <p>To check your result:</p>
-    <ol class="steps">
-      <li>Scan the QR code on your result card</li>
-      <li>Enter your KLF-ID when prompted</li>
-      <li>View your verified result</li>
-    </ol>
-  </div>
-  
-  <div class="success">
-    <h3>✅ How the System Works</h3>
-    <p>Each student receives a unique result card with:</p>
-    <ul class="steps">
-      <li>A personalized QR code</li>
-      <li>A unique KLF-ID (e.g., KLF-12345)</li>
-      <li>Instructions for verification</li>
-    </ul>
-    <p>This ensures only authorized students can access their results.</p>
-  </div>
-  
-  <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #eee;">
-    <p>Need help? Contact your school administration.</p>
-    <p><small>Khulafa'urrasheedun Islamiyya Result System © 2025</small></p>
-  </div>
+    <h1>🎓 KLF Result Verification System</h1>
+    <p>Secure online portal for student result verification</p>
+    
+    <div class="success">
+        <h2>✅ System Status: ACTIVE & READY</h2>
+        <p>Students can now verify and access their results using their unique KLF-ID cards.</p>
+    </div>
+    
+    <div class="info-box">
+        <h2>How It Works:</h2>
+        <ol class="steps">
+            <li><strong>Receive</strong> your personalized result card with QR code</li>
+            <li><strong>Note</strong> your unique KLF-ID printed on the card</li>
+            <li><strong>Scan</strong> the QR code with your phone camera</li>
+            <li><strong>Enter</strong> your KLF-ID when prompted</li>
+            <li><strong>Verify</strong> your identity</li>
+            <li><strong>View</strong> your result securely</li>
+        </ol>
+    </div>
+    
+    <div class="note">
+        <h3>⚠️ Important Security Notice:</h3>
+        <p>For security reasons, the KLF-ID is <strong>NOT</strong> auto-filled from the QR code.</p>
+        <p>Students must manually enter the ID from their physical card.</p>
+        <p>This ensures only the card holder can access the result.</p>
+    </div>
+    
+    <div class="card-sample">
+        <h3>Sample Result Card:</h3>
+        <p>Your card will look like this:</p>
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <p><strong>KHULAFA'URRASHEEDUN ISLAMIYYA</strong></p>
+            <p>RESULT CHECKING BARCODE</p>
+            <p><strong>ID: KLF-12345</strong> ← Your unique ID</p>
+            <p>QR Code to scan</p>
+            <p>Student Name</p>
+            <p>VALID FOR DEC/JAN 2025/2026</p>
+        </div>
+    </div>
+    
+    <div class="contact">
+        <h3>Need Help?</h3>
+        <p>If you experience any issues:</p>
+        <ol class="steps">
+            <li>Ensure you're entering the correct KLF-ID from your card</li>
+            <li>Check that your KLF-ID starts with "KLF-"</li>
+            <li>Make sure you have a stable internet connection</li>
+            <li>Contact your school administration if problems persist</li>
+        </ol>
+    </div>
+    
+    <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #eee;">
+        <p>Khulafa'urrasheedun Islamiyya Examination Board</p>
+        <p><small>© 2025 | Secure Digital Result Verification System</small></p>
+    </div>
 </div>
 </body>
 </html>
