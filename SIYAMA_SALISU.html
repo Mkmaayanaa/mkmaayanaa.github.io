@@ -1,0 +1,266 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>KLF Result Verify - SIYAMA_SALISU</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    margin: 0;
+}
+.container {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    overflow: hidden;
+    max-width: 500px;
+    width: 100%;
+}
+.header {
+    background: linear-gradient(135deg, #10306b 0%, #0b63c4 100%);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+.header h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: bold;
+}
+.header p {
+    margin: 10px 0 0;
+    opacity: 0.9;
+    font-size: 14px;
+}
+.content {
+    padding: 30px;
+}
+.student-info {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 25px;
+    border-left: 4px solid #0b63c4;
+}
+.student-info p {
+    margin: 8px 0;
+    color: #333;
+}
+.form-group {
+    margin-bottom: 25px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #333;
+}
+.form-group input {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    font-size: 18px;
+    box-sizing: border-box;
+    transition: border 0.3s;
+}
+.form-group input:focus {
+    border-color: #0b63c4;
+    outline: none;
+}
+.instructions {
+    background: #f0f8ff;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 25px;
+    font-size: 14px;
+    color: #555;
+}
+.instructions ul {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+.instructions li {
+    margin: 5px 0;
+}
+.btn-verify {
+    background: linear-gradient(135deg, #0b63c4 0%, #094d9c 100%);
+    color: white;
+    border: none;
+    padding: 18px;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    width: 100%;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.btn-verify:hover {
+    transform: translateY(-2px);
+}
+.btn-view {
+    background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+    color: white;
+    border: none;
+    padding: 18px;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    width: 100%;
+    cursor: pointer;
+    margin-top: 15px;
+    display: none;
+    transition: transform 0.2s;
+}
+.btn-view:hover {
+    transform: translateY(-2px);
+}
+.message {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: bold;
+    display: none;
+}
+.message.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+.message.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+.footer {
+    text-align: center;
+    padding: 20px;
+    border-top: 1px solid #eee;
+    color: #666;
+    font-size: 14px;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+    <div class="header">
+        <h1>📋 KLF RESULT VERIFICATION</h1>
+        <p>Enter your KLF-ID to access your result</p>
+    </div>
+    
+    <div class="content">
+        <div class="student-info">
+            <p><strong>Student:</strong> SIYAMA_SALISU</p>
+            <p><strong>Note:</strong> Your KLF-ID is printed on your result card</p>
+        </div>
+        
+        <div class="instructions">
+            <p><strong>Instructions:</strong></p>
+            <ul>
+                <li>Look for your <strong>KLF-ID</strong> on the card</li>
+                <li>Enter it exactly as shown (e.g., KLF-12345)</li>
+                <li>Click VERIFY to check</li>
+                <li>If correct, you can view your result</li>
+            </ul>
+        </div>
+        
+        <div class="form-group">
+            <label for="klf_input">ENTER YOUR KLF-ID:</label>
+            <input type="text" id="klf_input" placeholder="KLF-XXXXX" autocomplete="off">
+        </div>
+        
+        <button class="btn-verify" id="verifyBtn">✅ VERIFY NOW</button>
+        
+        <div class="message" id="message"></div>
+        
+        <button class="btn-view" id="viewBtn" onclick="window.open('https://drive.google.com/uc?export=view&amp;id=1pIXC99wcD2NrMCzzn4M2BPXDLQJ0xGhK','_blank')">
+            📄 VIEW YOUR RESULT
+        </button>
+    </div>
+    
+    <div class="footer">
+        <p>Khulafa'urrasheedun Islamiyya Result System</p>
+        <p>© 2025 | Secure Verification Portal</p>
+    </div>
+</div>
+
+<script>
+const REAL_ID = "KLF-36103";
+
+// Clear any ID from URL (don't auto-fill)
+const params = new URLSearchParams(window.location.search);
+if (params.has('klf_id')) {
+    // Remove the parameter from URL without reloading
+    params.delete('klf_id');
+    const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+    window.history.replaceState({}, '', newUrl);
+}
+
+document.getElementById('verifyBtn').onclick = function() {
+    const input = document.getElementById('klf_input');
+    const message = document.getElementById('message');
+    const viewBtn = document.getElementById('viewBtn');
+    
+    const enteredID = input.value.trim().toUpperCase();
+    
+    // Clear previous messages
+    message.style.display = 'none';
+    viewBtn.style.display = 'none';
+    
+    if (!enteredID) {
+        message.textContent = "❌ Please enter your KLF-ID";
+        message.className = "message error";
+        message.style.display = 'block';
+        return;
+    }
+    
+    if (!enteredID.startsWith("KLF-")) {
+        message.textContent = "❌ ID must start with 'KLF-' (e.g., KLF-12345)";
+        message.className = "message error";
+        message.style.display = 'block';
+        return;
+    }
+    
+    if (enteredID === REAL_ID.toUpperCase()) {
+        message.textContent = "✅ Verification Successful! You can now view your result.";
+        message.className = "message success";
+        message.style.display = 'block';
+        viewBtn.style.display = 'block';
+        
+        // Clear the input after successful verification
+        input.value = '';
+        input.blur();
+    } else {
+        message.textContent = "❌ Incorrect ID. Please check your KLF-ID and try again.";
+        message.className = "message error";
+        message.style.display = 'block';
+        
+        // Clear input on wrong attempt
+        input.value = '';
+        input.focus();
+    }
+};
+
+// Allow pressing Enter to verify
+document.getElementById('klf_input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        document.getElementById('verifyBtn').click();
+    }
+});
+
+// Focus on input when page loads
+window.onload = function() {
+    document.getElementById('klf_input').focus();
+};
+</script>
+</body>
+</html>
