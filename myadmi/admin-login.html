@@ -1,0 +1,120 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>KLF Admin Login</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;background:#f4f6fb;padding:40px;}
+    .card{max-width:420px;margin:40px auto;background:#fff;padding:22px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.08);}
+    h2{margin-top:0;color:#10306b}
+    input{width:100%;padding:12px;margin:8px 0;border-radius:8px;border:1px solid #ddd;box-sizing:border-box}
+    button{background:#0b63c4;color:#fff;border:0;padding:12px 14px;border-radius:8px;cursor:pointer;width:100%}
+    .muted{font-size:13px;color:#666}
+    .small{font-size:13px;color:#0b63c4;cursor:pointer;text-decoration:underline}
+    .msg{margin:10px 0;padding:10px;border-radius:8px;display:none}
+    .msg.ok{background:#d4edda;color:#155724}
+    .msg.err{background:#f8d7da;color:#721c24}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Admin Login / Sign up</h2>
+
+    <div id="loginView">
+      <input id="email" placeholder="Email" />
+      <input id="password" type="password" placeholder="Password" />
+      <button id="loginBtn">Sign In</button>
+      <p class="muted">Don't have an account? <span id="showSignup" class="small">Sign up with an invite</span></p>
+    </div>
+
+    <div id="signupView" style="display:none">
+      <input id="s_email" placeholder="Email" />
+      <input id="s_password" type="password" placeholder="Password (min 6)" />
+      <input id="invite_code" placeholder="Invite code (ask admin)" />
+      <button id="signupBtn">Sign Up</button>
+      <p class="muted"><span id="showLogin" class="small">Back to login</span></p>
+    </div>
+
+    <div id="message" class="msg"></div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+  <script src="firebase-config.js"></script>
+
+  <script>
+  // admin-login.js (inlined)
+  const loginView = document.getElementById('loginView');
+  const signupView = document.getElementById('signupView');
+  const showSignup = document.getElementById('showSignup');
+  const showLogin = document.getElementById('showLogin');
+  const message = document.getElementById('message');
+
+  function showMsg(text, ok=true){
+    message.style.display='block';
+    message.textContent = text;
+    message.className = ok ? 'msg ok' : 'msg err';
+    setTimeout(()=> message.style.display='none', 7000);
+  }
+
+  showSignup.onclick = ()=> { loginView.style.display='none'; signupView.style.display='block'; };
+  showLogin.onclick = ()=> { signupView.style.display='none'; loginView.style.display='block'; };
+
+  document.getElementById('loginBtn').onclick = async ()=>{
+    const email = document.getElementById('email').value.trim();
+    const pass = document.getElementById('password').value;
+    if(!email || !pass){ showMsg('Enter email and password', false); return; }
+    try{
+      await auth.signInWithEmailAndPassword(email, pass);
+      // verify that user email is in admins collection
+      const q = await db.collection('admins').where('email','==', email).get();
+      if(q.empty){ await auth.signOut(); showMsg('Not authorized as admin', false); return; }
+      // redirect to dashboard
+      window.location.href = 'admin-dashboard.html';
+    }catch(err){
+      showMsg(err.message || String(err), false);
+    }
+  };
+
+  document.getElementById('signupBtn').onclick = async ()=>{
+    const email = document.getElementById('s_email').value.trim();
+    const pass = document.getElementById('s_password').value;
+    const invite = document.getElementById('invite_code').value.trim();
+    if(!email || !pass || !invite){ showMsg('All fields are required', false); return; }
+    try{
+      // check invite
+      const q = await db.collection('invites').where('code','==', invite).where('email','==', email).get();
+      if(q.empty){ showMsg('Invalid invite code or email', false); return; }
+      // create user
+      await auth.createUserWithEmailAndPassword(email, pass);
+      // add to admins collection (so login checks pass)
+      await db.collection('admins').doc(email).set({email: email, created_at: firebase.firestore.FieldValue.serverTimestamp()});
+      // remove invite
+      q.docs.forEach(d=> d.ref.delete());
+      showMsg('Account created. Redirecting...', true);
+      setTimeout(()=> window.location.href = 'admin-dashboard.html', 1200);
+    }catch(err){
+      showMsg(err.message || String(err), false);
+    }
+  };
+
+  // Redirect already logged-in admin
+  auth.onAuthStateChanged(async user=>{
+    if(user){
+      const email = user.email;
+      const q = await db.collection('admins').where('email','==', email).get();
+      if(!q.empty){
+        window.location.href = 'admin-dashboard.html';
+      } else {
+        // not admin
+        await auth.signOut();
+      }
+    }
+  });
+  </script>
+</body>
+</html>
