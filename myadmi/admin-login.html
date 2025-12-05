@@ -19,7 +19,7 @@
 </head>
 <body>
   <div class="card">
-    <h2>Admin Login / Sign up</h2>
+    <h2>KLF Admin Login / Sign up</h2>
 
     <div id="loginView">
       <input id="email" placeholder="Email" />
@@ -39,15 +39,30 @@
     <div id="message" class="msg"></div>
   </div>
 
-  <!-- Firebase SDKs -->
+  <!-- Load Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-
+  
+  <!-- Load config -->
   <script src="firebase-config.js"></script>
 
   <script>
-  // admin-login.js (inlined)
+  // Wait for Firebase to be ready
+  setTimeout(function() {
+    console.log("Checking Firebase...");
+    console.log("firebase:", typeof firebase);
+    console.log("auth:", typeof auth);
+    console.log("db:", typeof db);
+    
+    if (typeof auth === 'undefined') {
+      document.getElementById('message').textContent = "❌ Firebase not loaded. Please refresh.";
+      document.getElementById('message').className = 'msg err';
+      document.getElementById('message').style.display = 'block';
+    }
+  }, 1000);
+
+  // Login/Signup code
   const loginView = document.getElementById('loginView');
   const signupView = document.getElementById('signupView');
   const showSignup = document.getElementById('showSignup');
@@ -68,12 +83,22 @@
     const email = document.getElementById('email').value.trim();
     const pass = document.getElementById('password').value;
     if(!email || !pass){ showMsg('Enter email and password', false); return; }
+    
+    if (typeof auth === 'undefined') {
+      showMsg('Firebase not loaded. Refresh page.', false);
+      return;
+    }
+    
     try{
       await auth.signInWithEmailAndPassword(email, pass);
-      // verify that user email is in admins collection
+      // Check if user is admin
       const q = await db.collection('admins').where('email','==', email).get();
-      if(q.empty){ await auth.signOut(); showMsg('Not authorized as admin', false); return; }
-      // redirect to dashboard
+      if(q.empty){ 
+        await auth.signOut(); 
+        showMsg('Not authorized as admin', false); 
+        return; 
+      }
+      // Redirect to dashboard
       window.location.href = 'admin-dashboard.html';
     }catch(err){
       showMsg(err.message || String(err), false);
@@ -85,15 +110,24 @@
     const pass = document.getElementById('s_password').value;
     const invite = document.getElementById('invite_code').value.trim();
     if(!email || !pass || !invite){ showMsg('All fields are required', false); return; }
+    
+    if (typeof auth === 'undefined') {
+      showMsg('Firebase not loaded. Refresh page.', false);
+      return;
+    }
+    
     try{
-      // check invite
+      // Check invite
       const q = await db.collection('invites').where('code','==', invite).where('email','==', email).get();
       if(q.empty){ showMsg('Invalid invite code or email', false); return; }
-      // create user
+      // Create user
       await auth.createUserWithEmailAndPassword(email, pass);
-      // add to admins collection (so login checks pass)
-      await db.collection('admins').doc(email).set({email: email, created_at: firebase.firestore.FieldValue.serverTimestamp()});
-      // remove invite
+      // Add to admins collection
+      await db.collection('admins').doc(email).set({
+        email: email, 
+        created_at: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      // Remove invite
       q.docs.forEach(d=> d.ref.delete());
       showMsg('Account created. Redirecting...', true);
       setTimeout(()=> window.location.href = 'admin-dashboard.html', 1200);
@@ -102,19 +136,21 @@
     }
   };
 
-  // Redirect already logged-in admin
-  auth.onAuthStateChanged(async user=>{
-    if(user){
-      const email = user.email;
-      const q = await db.collection('admins').where('email','==', email).get();
-      if(!q.empty){
-        window.location.href = 'admin-dashboard.html';
-      } else {
-        // not admin
-        await auth.signOut();
+  // Auto-redirect if already logged in
+  if (typeof auth !== 'undefined') {
+    auth.onAuthStateChanged(async user=>{
+      if(user){
+        const email = user.email;
+        const q = await db.collection('admins').where('email','==', email).get();
+        if(!q.empty){
+          window.location.href = 'admin-dashboard.html';
+        } else {
+          // not admin
+          await auth.signOut();
+        }
       }
-    }
-  });
+    });
+  }
   </script>
 </body>
 </html>
