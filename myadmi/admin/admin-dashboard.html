@@ -1,0 +1,178 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>KLF Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;margin:0;background:#f4f6fb}
+    header{background:#0b63c4;color:#fff;padding:18px}
+    header h1{margin:0;font-size:20px}
+    .wrap{padding:18px}
+    .toolbar{display:flex;gap:10px;align-items:center;margin-bottom:12px}
+    input,select,button{padding:8px;border-radius:6px;border:1px solid #ddd}
+    button.primary{background:#0b63c4;color:#fff;border:0}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{padding:10px;border-bottom:1px solid #eee;text-align:left}
+    .small{font-size:13px;color:#666}
+    .right{margin-left:auto}
+    .invite-box{display:flex;gap:8px;align-items:center}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>KLF Admin Dashboard</h1>
+  </header>
+  <div class="wrap">
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="toolbar">
+        <input id="filterEmail" placeholder="Filter KLF-ID or student name" />
+        <select id="limitSel">
+          <option value="50">Latest 50</option>
+          <option value="100">100</option>
+          <option value="250">250</option>
+          <option value="500">500</option>
+        </select>
+        <button id="loadBtn" class="primary">Load Logs</button>
+        <button id="exportCSV">Export CSV</button>
+      </div>
+      <div class="right">
+        <button id="signOut">Sign out</button>
+      </div>
+    </div>
+
+    <div style="margin-top:14px;display:flex;gap:12px;align-items:center">
+      <div class="invite-box">
+        <input id="inviteEmail" placeholder="New admin email" />
+        <button id="createInvite">Create Invite</button>
+      </div>
+      <div class="small" id="inviteResult"></div>
+    </div>
+
+    <table id="logsTable">
+      <thead>
+        <tr><th>#</th><th>Student</th><th>KLF-ID</th><th>Time</th><th>User Agent</th><th>Page</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+  <script src="firebase-config.js"></script>
+
+  <script>
+  // admin-dashboard.js (inlined)
+  const authStatus = document.createElement('div');
+
+  const signOutBtn = document.getElementById('signOut');
+  const loadBtn = document.getElementById('loadBtn');
+  const exportBtn = document.getElementById('exportCSV');
+  const logsTableBody = document.querySelector('#logsTable tbody');
+  const limitSel = document.getElementById('limitSel');
+  const filterInput = document.getElementById('filterEmail');
+  const inviteEmail = document.getElementById('inviteEmail');
+  const createInviteBtn = document.getElementById('createInvite');
+  const inviteResult = document.getElementById('inviteResult');
+
+  let currentUser = null;
+
+  async function requireAdmin(user){
+    const email = user.email;
+    const q = await db.collection('admins').where('email','==', email).get();
+    if(q.empty){
+      alert('You are not authorized as admin. Contact owner.');
+      await auth.signOut();
+      window.location.href = 'admin-login.html';
+      throw new Error('Not admin');
+    }
+    currentUser = user;
+  }
+
+  auth.onAuthStateChanged(async user=>{
+    if(!user){
+      window.location.href = 'admin-login.html'; return;
+    }
+    try{
+      await requireAdmin(user);
+      console.log('Admin OK:', user.email);
+    }catch(e){ console.error(e); }
+  });
+
+  signOutBtn.onclick = ()=> auth.signOut().then(()=> window.location.href='admin-login.html');
+
+  loadBtn.onclick = loadLogs;
+  exportBtn.onclick = exportCSV;
+
+  async function loadLogs(){
+    logsTableBody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
+    const limit = parseInt(limitSel.value);
+    let q = db.collection('logs').orderBy('timestamp','desc').limit(limit);
+    const filter = filterInput.value.trim().toLowerCase();
+    const snap = await q.get();
+    const rows = [];
+    snap.forEach((d, i)=>{
+      const data = d.data();
+      rows.push({
+        id: d.id,
+        student: data.student_name || '',
+        klf_id: data.klf_id || '',
+        ts: data.timestamp ? data.timestamp.toDate().toLocaleString() : '',
+        ua: data.user_agent || '',
+        page: data.page || ''
+      });
+    });
+    // apply filter client-side
+    const filtered = rows.filter(r=>{
+      if(!filter) return true;
+      return (r.student.toLowerCase().includes(filter) || r.klf_id.toLowerCase().includes(filter));
+    });
+    logsTableBody.innerHTML = '';
+    filtered.forEach((r, idx)=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${idx+1}</td><td>${escapeHtml(r.student)}</td><td>${escapeHtml(r.klf_id)}</td><td>${escapeHtml(r.ts)}</td><td style="max-width:400px;overflow:hidden;text-overflow:ellipsis">${escapeHtml(r.ua)}</td><td>${escapeHtml(r.page)}</td>`;
+      logsTableBody.appendChild(tr);
+    });
+  }
+
+  function escapeHtml(s){ return (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  async function exportCSV(){
+    const rows = [['#','student','klf_id','timestamp','user_agent','page']];
+    const trs = logsTableBody.querySelectorAll('tr');
+    trs.forEach((tr,i)=>{
+      const cells = tr.querySelectorAll('td');
+      if(cells.length < 6) return;
+      rows.push([i+1, cells[1].innerText, cells[2].innerText, cells[3].innerText, cells[4].innerText, cells[5].innerText]);
+    });
+    const csv = rows.map(r=> r.map(c=> `"${(c||'').toString().replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], {type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href=url; a.download = 'klf_logs.csv'; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  createInviteBtn.onclick = async ()=>{
+    const email = inviteEmail.value.trim();
+    if(!email){ inviteResult.innerText='Enter email'; return; }
+    // create invite code
+    const code = Math.random().toString(36).slice(2,9).toUpperCase();
+    try{
+      await db.collection('invites').add({
+        email: email,
+        code: code,
+        created_by: currentUser.email,
+        created_at: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      inviteResult.innerText = `Invite created. Code: ${code} — send to ${email}`;
+      inviteEmail.value = '';
+    }catch(err){
+      inviteResult.innerText = `Error: ${err.message || err}`;
+    }
+  };
+  </script>
+</body>
+</html>
