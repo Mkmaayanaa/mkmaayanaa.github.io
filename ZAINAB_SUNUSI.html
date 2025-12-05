@@ -5,6 +5,36 @@
 <title>KLF Result Verify - ZAINAB_SUNUSI</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
+    <!-- Add these lines to each verify page -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+<script src="/admin/firebase-config.js"></script>
+
+<script>
+// Logging function - call this when verification succeeds
+async function logAccess(studentName, klfId) {
+  try {
+    const ua = navigator.userAgent || "";
+    const ts = firebase.firestore.FieldValue.serverTimestamp();
+    
+    await firebase.firestore().collection('logs').add({
+      student_name: studentName || null,
+      klf_id: klfId || null,
+      timestamp: ts,
+      user_agent: ua,
+      page: window.location.pathname
+    });
+    console.log("Logged access for", klfId);
+  } catch (err) {
+    console.warn("Failed to write log:", err);
+  }
+}
+
+// Call this function when student successfully verifies
+// Example: when they click "View Result", add:
+// logAccess("STUDENT NAME", "KLF-51980");
+</script>
 body {
     font-family: Arial, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -264,3 +294,4 @@ window.onload = function() {
 </script>
 </body>
 </html>
+
